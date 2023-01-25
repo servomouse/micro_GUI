@@ -2,6 +2,13 @@
     "files.associations": {
         "xlib.h": "c",
         "x.h": "c",
-        "xosdefs.h": "c"
+        "xosdefs.h": "c",
+        "xlibint.h": "c",
+        "xintconn.h": "c",
+        "xxcbint.h": "c",
+        "xcmsint.h": "c",
+        "xlibconf.h": "c",
+        "xpoll.h": "c",
+        "xcb.h": "c"
     }
 }
