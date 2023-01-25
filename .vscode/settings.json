@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "xlib.h": "c",
+        "x.h": "c",
+        "xosdefs.h": "c"
+    }
+}
