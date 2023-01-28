@@ -51,8 +51,8 @@ SOFTWARE.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
-#include "Xutil.h"
+#include "X11/Xlibint.h"
+#include "X11/Xutil.h"
 #include <X11/Xregion.h>
 #include "poly.h"
 #include "reallocarray.h"

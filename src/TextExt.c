@@ -35,7 +35,7 @@ from The Open Group.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 
 #define min_byte2 min_char_or_byte2
 #define max_byte2 max_char_or_byte2

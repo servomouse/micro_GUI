@@ -30,7 +30,7 @@ from The Open Group.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 
 int
 _XPutBackEvent (

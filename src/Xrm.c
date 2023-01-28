@@ -54,9 +54,9 @@ from The Open Group.
 #endif
 #include	<stdio.h>
 #include	<ctype.h>
-#include	"Xlibint.h"
+#include	"X11/Xlibint.h"
 #include	<X11/Xresource.h>
-#include	"Xlcint.h"
+#include	"xlibi18n/Xlcint.h"
 #ifdef XTHREADS
 #include	"locking.h"
 #endif
@@ -64,7 +64,7 @@ from The Open Group.
 #include	<sys/stat.h>
 #include	<limits.h>
 #include "Xresinternal.h"
-#include "Xresource.h"
+#include "X11/Xresource.h"
 
 /*
 

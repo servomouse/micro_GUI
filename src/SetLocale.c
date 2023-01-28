@@ -58,11 +58,11 @@ from The Open Group.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
-#include "Xlcint.h"
+#include "X11/Xlibint.h"
+#include "xlibi18n/Xlcint.h"
 #include <X11/Xlocale.h>
 #include <X11/Xos.h>
-#include "XlcPubI.h"
+#include "xlibi18n/XlcPubI.h"
 
 #define MAXLOCALE	64	/* buffer size of locale name */
 

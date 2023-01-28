@@ -5,11 +5,11 @@
 #include <config.h>
 #endif
 
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "locking.h"
 #include "Xprivate.h"
 #include "Xxcbint.h"
-#include <xcb/xcbext.h>
+#include <xcbext.h>
 
 #include <assert.h>
 #ifdef HAVE_INTTYPES_H

@@ -9,6 +9,8 @@
         "xcmsint.h": "c",
         "xlibconf.h": "c",
         "xpoll.h": "c",
-        "xcb.h": "c"
+        "xcb.h": "c",
+        "keysymdef.h": "c",
+        "xcbext.h": "c"
     }
 }

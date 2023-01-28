@@ -28,7 +28,7 @@ in this Software without prior written authorization from The Open Group.
 #include <config.h>
 #endif
 #include <limits.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include <X11/Xresource.h>
 #include <X11/keysymdef.h>
 #include "Xresinternal.h"
@@ -44,6 +44,13 @@ in this Software without prior written authorization from The Open Group.
 #define KEYSYMDB XKEYSYMDB
 #endif
 #endif
+
+// TODO: Idk what these values are or eve if they are necessary, probably it is a good idea to change them
+#define KTABLESIZE 128
+#define KMAXHASH 2
+static const unsigned short hashString[KTABLESIZE];
+static const short unsigned int _XkeyTable[KTABLESIZE];
+//================================================//
 
 static Bool initialized;
 static XrmDatabase keysymdb;

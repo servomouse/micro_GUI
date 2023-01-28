@@ -29,8 +29,8 @@ in this Software without prior written authorization from The Open Group.
 #endif
 #include <limits.h>
 #include <stdio.h>
-#include "Xlibint.h"
-#include "Xcmsint.h"
+#include "X11/Xlibint.h"
+#include "xcms/Xcmsint.h"
 
 
 Status

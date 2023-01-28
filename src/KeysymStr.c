@@ -39,6 +39,10 @@ in this Software without prior written authorization from The Open Group.
 #include "ks_tables.h"
 #include "Key.h"
 
+#define VTABLESIZE 128
+#define VMAXHASH 2
+static const unsigned short hashKeysym[VTABLESIZE];
+
 
 typedef struct _GRNData {
     char *name;

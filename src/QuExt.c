@@ -29,7 +29,7 @@ in this Software without prior written authorization from The Open Group.
 #endif
 #include <limits.h>
 #include <stdbool.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 
 Bool
 XQueryExtension(

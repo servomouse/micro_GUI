@@ -27,11 +27,11 @@ in this Software without prior written authorization from The Open Group.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
-#include "Xutil.h"
+#include "X11/Xlibint.h"
+#include "X11/Xutil.h"
 #include <stdio.h>
 #include "Cr.h"
-#include "ImUtil.h"
+#include "X11/ImUtil.h"
 #include "reallocarray.h"
 
 #if defined(__STDC__) && ((defined(sun) && defined(SVR4)) || defined(WIN32))

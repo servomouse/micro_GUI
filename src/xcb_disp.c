@@ -5,9 +5,9 @@
 #include <config.h>
 #endif
 
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xxcbint.h"
-#include <xcb/xcbext.h>
+#include <xcbext.h>
 #include <X11/Xatom.h>
 #include <X11/Xresource.h>
 #include <stdio.h>

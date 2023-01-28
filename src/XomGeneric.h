@@ -34,7 +34,7 @@
 #ifndef _XOMGENERIC_H_
 #define _XOMGENERIC_H_
 
-#include "XlcPublic.h"
+#include "xlibi18n/XlcPublic.h"
 
 #define XOM_GENERIC(om)		(&((XOMGeneric) om)->gen)
 #define XOC_GENERIC(font_set)	(&((XOCGeneric) font_set)->gen)

@@ -30,8 +30,8 @@ from The Open Group.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
-#include "Xutil.h"
+#include "X11/Xlibint.h"
+#include "X11/Xutil.h"
 
 /*
  *    XParseGeometry parses strings of the form
