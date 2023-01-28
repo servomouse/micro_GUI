@@ -36,7 +36,7 @@
 #include <config.h>
 #endif
 #include <stdio.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xcmsint.h"
 #include "Cv.h"
 

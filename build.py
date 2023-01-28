@@ -9,7 +9,7 @@ from pathlib import Path    # to check if a directory exists
 compiler_path = "gcc"
 
 
-compiler_flags = ["-Iinclude -Ixcb -lm", "-Wl,-lm"]
+compiler_flags = ["-Iinclude -Ixcb -Isrc -lm", "-Wl,-lm"]
 
 
 def compile(input_file:str) -> int:

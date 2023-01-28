@@ -38,10 +38,10 @@
 #include <config.h>
 #endif
 #include <stdio.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xcmsint.h"
 #include "Cv.h"
-#include "reallocarray.h"
+#include "src/reallocarray.h"
 
 #ifndef XCMSCOMPPROC
 #  define XCMSCOMPPROC	XcmsTekHVCClipC

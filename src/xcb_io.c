@@ -32,7 +32,7 @@
 
 #define throw_thread_fail_assert(_message, _var) { \
 	fprintf(stderr, "[xcb] " _message "\n"); \
-        if (_Xglobal_lock) { \
+        if (1) { \
             fprintf(stderr, "[xcb] You called XInitThreads, this is not your fault\n"); \
         } else { \
             fprintf(stderr, "[xcb] Most likely this is a multi-threaded client " \
