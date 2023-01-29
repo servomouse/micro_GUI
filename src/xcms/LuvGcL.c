@@ -33,7 +33,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xcmsint.h"
 #include "Cv.h"
 

@@ -49,7 +49,7 @@ in this Software without prior written authorization from The Open Group.
 #define KTABLESIZE 128
 #define KMAXHASH 2
 static const unsigned short hashString[KTABLESIZE];
-static const short unsigned int _XkeyTable[KTABLESIZE];
+static const unsigned char _XkeyTable[KTABLESIZE];
 //================================================//
 
 static Bool initialized;

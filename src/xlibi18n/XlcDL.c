@@ -82,7 +82,7 @@ Sun Microsystems, Inc. or its licensors is granted.
 
 #include <ctype.h>
 
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "XlcPublic.h"
 #include "XlcPubI.h"
 #include "reallocarray.h"

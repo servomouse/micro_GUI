@@ -29,6 +29,8 @@
 #define __XCBINT_H
 
 #include "bigreq.h"
+#include "xcb.h"
+#include "xproto.h"
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -37,6 +39,8 @@
 #ifdef GCC_HAS_VISIBILITY
 #pragma GCC visibility push(hidden)
 #endif
+
+#define XCB_QUEUE_BUFFER_SIZE 1024
 
 enum workarounds {
     WORKAROUND_NONE,

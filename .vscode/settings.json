@@ -11,6 +11,18 @@
         "xpoll.h": "c",
         "xcb.h": "c",
         "keysymdef.h": "c",
-        "xcbext.h": "c"
+        "xcbext.h": "c",
+        "xcms.h": "c",
+        "xkbproto.h": "c",
+        "xkblibint.h": "c",
+        "xkblib.h": "c",
+        "xkbstr.h": "c",
+        "xkbgeom.h": "c",
+        "xlcpubi.h": "c",
+        "ximint.h": "c",
+        "keysym.h": "c",
+        "xlcint.h": "c",
+        "xcbint.h": "c",
+        "xc_misc.h": "c"
     }
 }

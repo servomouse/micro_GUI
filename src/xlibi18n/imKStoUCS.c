@@ -2,7 +2,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Ximint.h"
 
 static unsigned short const keysym_to_unicode_1a1_1ff[] = {

@@ -31,10 +31,10 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <stdio.h>
 #endif
 
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "XKBlibint.h"
-#include "X11/extensions/XKBgeom.h"
-#include <X11/extensions/XKBproto.h>
+#include "XKBgeom.h"
+#include <XKBproto.h>
 
 #ifndef MINSHORT
 #define	MINSHORT	-32768

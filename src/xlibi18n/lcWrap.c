@@ -57,7 +57,7 @@ from The Open Group.
 #include <config.h>
 #endif
 #include <stdlib.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xlcint.h"
 #include <X11/Xlocale.h>
 #include <X11/Xos.h>

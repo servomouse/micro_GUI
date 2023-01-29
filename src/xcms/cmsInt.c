@@ -41,7 +41,7 @@
 #include "X11/Xlibint.h"
 #include "Xcmsint.h"
 #include "Cv.h"
-#include "src/reallocarray.h"
+#include "reallocarray.h"
 
 #ifndef XCMSCOMPPROC
 #  define XCMSCOMPPROC	XcmsTekHVCClipC

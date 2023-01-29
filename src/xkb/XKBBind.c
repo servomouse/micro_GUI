@@ -31,14 +31,14 @@ from The Open Group.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "XKBlib.h"
+#include "X11/XKBlib.h"
 #include <X11/Xlibint.h>
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
 #include <stdio.h>
 #include <ctype.h>
 
-#include <X11/extensions/XKBproto.h>
+#include <XKBproto.h>
 #include "XKBlibint.h"
 
 #define AllMods (ShiftMask|LockMask|ControlMask| \

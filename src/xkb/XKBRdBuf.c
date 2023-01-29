@@ -28,9 +28,9 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #include <config.h>
 #endif
 #include <stdio.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "XKBlibint.h"
-#include <X11/extensions/XKBproto.h>
+#include <XKBproto.h>
 
 /***====================================================================***/
 

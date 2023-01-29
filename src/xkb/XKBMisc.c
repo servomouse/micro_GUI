@@ -30,8 +30,8 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
 #include <stdio.h>
-#include "Xlibint.h"
-#include <X11/extensions/XKBproto.h>
+#include "X11/Xlibint.h"
+#include <XKBproto.h>
 #include <X11/keysym.h>
 #include "XKBlibint.h"
 

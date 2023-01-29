@@ -53,8 +53,10 @@ static Status LoadColornameDB(void);
  *      LOCAL DEFINES
  *		#define declarations local to this package.
  */
+
+#define XCMSDIR "."
 #ifndef XCMSDB
-#define XCMSDB  XCMSDIR "/Xcms.txt"
+#define XCMSDB  XCMSDIR"/Xcms.txt"
 #endif
 
 #ifndef isgraph

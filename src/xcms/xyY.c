@@ -39,7 +39,7 @@
 #endif
 #include <stdio.h>
 #include <X11/Xos.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xcmsint.h"
 #include "Cv.h"
 

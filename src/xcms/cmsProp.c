@@ -35,7 +35,7 @@
 #include <config.h>
 #endif
 #include <X11/Xatom.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xcmsint.h"
 #include "Cv.h"
 

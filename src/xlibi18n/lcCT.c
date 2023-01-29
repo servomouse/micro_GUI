@@ -39,7 +39,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "XlcPubI.h"
 #include <X11/Xos.h>
 #include <stdio.h>

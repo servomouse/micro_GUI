@@ -28,8 +28,8 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
-#include <X11/extensions/XKBproto.h>
+#include "X11/Xlibint.h"
+#include <XKBproto.h>
 #include "XKBlibint.h"
 
 static Status

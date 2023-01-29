@@ -37,7 +37,7 @@
 #endif
 #include <X11/Xlib.h>
 #include <X11/Xresource.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "XlcPubI.h"
 #include "reallocarray.h"
 

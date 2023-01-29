@@ -29,7 +29,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ctype.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "XlcPubI.h"
 #include <X11/Xos.h>
 #include <unistd.h>
@@ -341,6 +341,8 @@ xlocalelibdir(
 	}
     }
 #endif /* NO_XLOCALEDIR */
+
+#define XLOCALELIBDIR "."
 
     if (len < buf_len)
 #ifndef __UNIXOS2__

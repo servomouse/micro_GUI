@@ -29,8 +29,8 @@ THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #endif
 #include <stdio.h>
 #include <ctype.h>
-#include "Xlibint.h"
-#include <X11/extensions/XKBproto.h>
+#include "X11/Xlibint.h"
+#include <XKBproto.h>
 #include "XKBlibint.h"
 
 static Bool _XkbIgnoreExtension = False;

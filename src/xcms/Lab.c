@@ -42,7 +42,7 @@
 #endif
 #include <X11/Xos.h>
 #include <stdio.h> /* sscanf */
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xcmsint.h"
 #include "Cv.h"
 

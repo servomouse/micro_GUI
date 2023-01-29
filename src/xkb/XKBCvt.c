@@ -35,16 +35,16 @@ from The Open Group.
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
-#include "Xlibint.h"
-#include "Xlcint.h"
-#include "XlcPubI.h"
-#include "Ximint.h"
+#include "X11/Xlibint.h"
+#include "xlibi18n/Xlcint.h"
+#include "xlibi18n/XlcPubI.h"
+#include "xlibi18n/Ximint.h"
 #include <X11/Xutil.h>
 #include <X11/Xmd.h>
 #define XK_LATIN1
 #define XK_PUBLISHING
 #include <X11/keysym.h>
-#include <X11/extensions/XKBproto.h>
+#include <XKBproto.h>
 #include "XKBlibint.h"
 #include <X11/Xlocale.h>
 #include <ctype.h>

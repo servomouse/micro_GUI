@@ -32,6 +32,7 @@
 #include <assert.h>
 #include <X11/Xauth.h>
 #include <sys/param.h>
+#include <xproto.h>
 #include <unistd.h>
 #include <stdlib.h>
 

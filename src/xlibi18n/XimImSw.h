@@ -29,15 +29,17 @@ PERFORMANCE OF THIS SOFTWARE.
 #ifndef _XIMIMSW_H
 #define _XIMIMSW_H
 
+#include "xlibi18n/Xlcint.h"
+
 typedef struct {
     Bool	(*checkprocessing)(
-	Xim   im
+	XIM   im
 		);
     Bool	(*im_open)(
-	Xim   im
+	XIM   im
 		);
     void	(*im_free)(
-	Xim   im
+	XIM   im
 		);
 } XimImsportSW;
 

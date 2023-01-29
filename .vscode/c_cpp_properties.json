@@ -2,6 +2,8 @@
     "env": {
       "myDefaultIncludePath": ["${workspaceFolder}", 
                                "${workspaceFolder}/include", 
+                               "${workspaceFolder}/src", 
+                               "${workspaceFolder}/extensions", 
                                "${workspaceFolder}/xcb"],
       "myCompilerPath": "/usr/local/bin/gcc-7",
       // "sdk_path": "/media/master/0E5513DF0E5513DF/Work/esp8266/ESP8266_RTOS_SDK/components"

@@ -58,6 +58,8 @@
 #define SHUT_RDWR 2
 #endif
 
+#define IOV_MAX 16
+
 typedef struct {
     uint8_t  status;
     uint8_t  pad0[5];

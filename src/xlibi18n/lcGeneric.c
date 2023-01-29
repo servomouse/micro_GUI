@@ -32,7 +32,7 @@
 #include <config.h>
 #endif
 #include <stdio.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "XlcGeneric.h"
 #include "reallocarray.h"
 

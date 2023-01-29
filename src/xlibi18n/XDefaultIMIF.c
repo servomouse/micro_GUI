@@ -64,7 +64,7 @@ Sun Microsystems, Inc. or its licensors is granted.
 #include <config.h>
 #endif
 #include <stdio.h>
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xlcint.h"
 #include "XlcGeneric.h"
 #include "reallocarray.h"

@@ -26,7 +26,7 @@
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "XlcPubI.h"
 #include <stdio.h>
 #include "locking.h"

@@ -63,7 +63,7 @@ Sun Microsystems, Inc. or its licensors is granted.
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif
-#include "Xlibint.h"
+#include "X11/Xlibint.h"
 #include "Xlcint.h"
 #include "XlcPublic.h"
 #include <X11/Xos.h>

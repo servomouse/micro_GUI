@@ -31,7 +31,7 @@
 #define	_Xaixlcint_h
 
 #include "Xlcint.h"
-#include <sys/lc_core.h>
+#include "lc_core.h"
 
 #define	_LC_LDX		11
 #define	_LC_LDX_R6	(_LC_LDX+1)

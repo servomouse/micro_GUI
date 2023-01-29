@@ -54,7 +54,7 @@ in this Software without prior written authorization from The Open Group.
 #ifdef XKB
 #include "XKBlib.h"
 #include "XKBlibint.h"
-#define	XKeycodeToKeysym	_XKeycodeToKeysym
+// #define	XKeycodeToKeysym	_XKeycodeToKeysym	// !edited
 #define	XKeysymToKeycode	_XKeysymToKeycode
 #define	XLookupKeysym		_XLookupKeysym
 #define	XRefreshKeyboardMapping	_XRefreshKeyboardMapping
