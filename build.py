@@ -27,7 +27,7 @@ def compile_all(files:list):
         if compile(item) == 1:
             print(colored(f"{item} compilation error", 'red'))
             sys.exit(0)
-    print(colored("compilation completed successfully", 'green'))
+    print(colored(f"{len(files)} files compiled successfully", 'green'))
     return 0
 
 
@@ -51,6 +51,8 @@ def get_files(path:str, filetype:str)->list:
 
 
 def build():
+    if Path("temp_files").exists():
+        subprocess.call('rm -r temp_files/*', shell=True)
     Path("temp_files").mkdir(parents=True, exist_ok=True) # create temp directory if there is no one
     workdir = os.path.abspath(os.getcwd())
     if 0 == compile_all(get_files(workdir, ".c")) and 0 == link_all(get_files(workdir, ".o")):

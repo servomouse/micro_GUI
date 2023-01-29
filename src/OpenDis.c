@@ -60,18 +60,21 @@ static void OutOfMemory(Display *dpy);
  * Connects to a server, creates a Display object and returns a pointer to
  * the newly created Display back to the caller.
  */
-Display *
-XOpenDisplay (
-	register _Xconst char *display)
+Display * XOpenDisplay (register _Xconst char *display)
 {
-	register Display *dpy;		/* New Display object being created. */
+	register Display *dpy;	/* New Display object being created. */
 	register int i;
-	int j, k;			/* random iterator indexes */
+	int j, k;				/* random iterator indexes */
 	char *display_name;		/* pointer to display name */
 	char *setup = NULL;		/* memory allocated at startup */
 	int iscreen;			/* screen number */
-	xConnSetupPrefix prefix;	/* prefix information */
+	xConnSetupPrefix prefix;/* prefix information */
 	int vendorlen;			/* length of vendor string */
+	long setuplength;		/* number of bytes in setup message */
+	long usedbytes = 0;     /* number of bytes we have processed */
+	unsigned long mask;
+	long int conn_buf_size;
+	char *xlib_buffer_size;
 	union {
 		xConnSetup *setup;
 		char *failure;
@@ -81,55 +84,69 @@ XOpenDisplay (
 		xDepth *dp;
 		xVisualType *vp;
 	} u;				/* proto data returned from server */
-	long setuplength;	/* number of bytes in setup message */
-	long usedbytes = 0;     /* number of bytes we have processed */
-	unsigned long mask;
-	long int conn_buf_size;
-	char *xlib_buffer_size;
 
 	/*
 	 * If the display specifier string supplied as an argument to this
 	 * routine is NULL or a pointer to NULL, read the DISPLAY variable.
 	 */
-	if (display == NULL || *display == '\0') {
-		if ((display_name = getenv("DISPLAY")) == NULL) {
+	if (display == NULL || *display == '\0')
+	{
+		display_name = getenv("DISPLAY");
+		if (display_name == NULL)
+		{
 			/* Oops! No DISPLAY environment variable - error. */
+			printf("no display(");
 			return(NULL);
 		}
+		printf("%s, %s, %d\n", display_name, __FILE__, __LINE__);
 	}
-	else {
+	else
+	{
 		/* Display is non-NULL, copy the pointer */
 		display_name = (char *)display;
+		printf("%s, %s, %d\n", display_name, __FILE__, __LINE__);
 	}
 
 /*
  * Set the default error handlers.  This allows the global variables to
  * default to NULL for use with shared libraries.
  */
-	if (_XErrorFunction == NULL) (void) XSetErrorHandler (NULL);
-	if (_XIOErrorFunction == NULL) (void) XSetIOErrorHandler (NULL);
+	if (_XErrorFunction == NULL)
+		XSetErrorHandler(NULL);
+	if (_XIOErrorFunction == NULL)
+		XSetIOErrorHandler(NULL);
 
 /*
  * Attempt to allocate a display structure. Return NULL if allocation fails.
  */
-	if ((dpy = Xcalloc(1, sizeof(Display))) == NULL) {
+	if ((dpy = Xcalloc(1, sizeof(Display))) == NULL)
+	{
+		printf("%s, %s, %d\n", "allocation failed", __FILE__, __LINE__);
 		return(NULL);
 	}
+	printf("%s, %s, %d\n", "allocation successful", __FILE__, __LINE__);
 
-	if ((dpy->display_name = strdup(display_name)) == NULL) {
+	if ((dpy->display_name = strdup(display_name)) == NULL)
+	{
+		printf("%s, %d\n", __FILE__, __LINE__);
 		OutOfMemory(dpy);
+		printf("%s, %d\n", __FILE__, __LINE__);
 		return(NULL);
 	}
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 /*
  * Call the Connect routine to get the transport connection object.
  * If NULL is returned, the connection failed.
  */
 
-	if(!_XConnectXCB(dpy, display, &iscreen)) {
+	if(!_XConnectXCB(dpy, display, &iscreen))
+	{
+		printf("%s, %d\n", __FILE__, __LINE__);
 		OutOfMemory(dpy);
 		return NULL;
 	}
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	/* Initialize as much of the display structure as we can.
 	 * Initialize pointers to NULL so that XFreeDisplayStructure will
@@ -150,11 +167,13 @@ XOpenDisplay (
 	dpy->event_vec[X_Reply] = _XUnknownWireEvent;
 	dpy->wire_vec[X_Error]  = _XUnknownNativeEvent;
 	dpy->wire_vec[X_Reply]  = _XUnknownNativeEvent;
-	for (i = KeyPress; i < LASTEvent; i++) {
+	for (i = KeyPress; i < LASTEvent; i++)
+	{
 	    dpy->event_vec[i] 	= _XWireToEvent;
 	    dpy->wire_vec[i] 	= NULL;
 	}
-	for (i = LASTEvent; i < 128; i++) {
+	for (i = LASTEvent; i < 128; i++)
+	{
 	    dpy->event_vec[i] 	= _XUnknownWireEvent;
 	    dpy->wire_vec[i] 	= _XUnknownNativeEvent;
 	}
@@ -206,16 +225,24 @@ XOpenDisplay (
 	dpy->error_threads = NULL;
 	dpy->exit_handler = _XDefaultIOErrorExit;
 
-	/* Initialize the display lock */
-	if (InitDisplayLock(dpy) != 0) {
-	        OutOfMemory (dpy);
-		return(NULL);
-	}
+	printf("%s, %d\n", __FILE__, __LINE__);
 
-	if (!_XPollfdCacheInit(dpy)) {
-	        OutOfMemory (dpy);
+	/* Initialize the display lock */
+	if (InitDisplayLock(dpy) != 0)
+	{
+		printf("%s, %d\n", __FILE__, __LINE__);
+		OutOfMemory (dpy);
 		return(NULL);
 	}
+	printf("%s, %d\n", __FILE__, __LINE__);
+
+	if (!_XPollfdCacheInit(dpy))
+	{
+		printf("%s, %d\n", __FILE__, __LINE__);
+		OutOfMemory (dpy);
+		return(NULL);
+	}
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	/* Set up the output buffers. */
 #ifndef XLIBDEFAULTBUFSIZE
@@ -225,11 +252,7 @@ XOpenDisplay (
 #define XLIBMINBUFSIZE BUFSIZE /* old default buffer size */
 #endif
 	xlib_buffer_size = getenv("XLIBBUFFERSIZE");
-
-#ifdef __sun /* Backwards compatibility for old Solaris libX11 name */
-	if (xlib_buffer_size == NULL)
-	    xlib_buffer_size = getenv("XSUNBUFFERSIZE");
-#endif
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	if (xlib_buffer_size == NULL)
 	    conn_buf_size = XLIBDEFAULTBUFSIZE;

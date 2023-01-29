@@ -137,62 +137,62 @@ load_public(
     return True;
 }
 
-static Bool
-initialize_core(
-    XLCd lcd)
-{
-    XLCdMethods methods = lcd->methods;
-    XLCdMethods core = &publicMethods.core;
+// static Bool  // !edited!
+// initialize_core(
+//     XLCd lcd)
+// {
+//     XLCdMethods methods = lcd->methods;
+//     XLCdMethods core = &publicMethods.core;
 
-    if (methods->close == NULL)
-	methods->close = core->close;
+//     if (methods->close == NULL)
+// 	methods->close = core->close;
 
-    if (methods->map_modifiers == NULL)
-	methods->map_modifiers = core->map_modifiers;
+//     if (methods->map_modifiers == NULL)
+// 	methods->map_modifiers = core->map_modifiers;
 
-    if (methods->open_om == NULL)
-#ifdef USE_DYNAMIC_LC
-	_XInitDefaultOM(lcd);
-#else
-	_XInitOM(lcd);
-#endif
+//     if (methods->open_om == NULL)
+// #ifdef USE_DYNAMIC_LC
+// 	_XInitDefaultOM(lcd);
+// #else
+// 	_XInitOM(lcd);
+// #endif
 
-    if (methods->open_im == NULL)
-#ifdef USE_DYNAMIC_LC
-	_XInitDefaultIM(lcd);
-#else
-	_XInitIM(lcd);
-#endif
+//     if (methods->open_im == NULL)
+// #ifdef USE_DYNAMIC_LC
+// 	_XInitDefaultIM(lcd);
+// #else
+// 	_XInitIM(lcd);
+// #endif
 
-    if (methods->init_parse_info == NULL)
-	methods->init_parse_info = core->init_parse_info;
+//     if (methods->init_parse_info == NULL)
+// 	methods->init_parse_info = core->init_parse_info;
 
-    if (methods->mb_text_prop_to_list == NULL)
-	methods->mb_text_prop_to_list = core->mb_text_prop_to_list;
+//     if (methods->mb_text_prop_to_list == NULL)
+// 	methods->mb_text_prop_to_list = core->mb_text_prop_to_list;
 
-    if (methods->wc_text_prop_to_list == NULL)
-	methods->wc_text_prop_to_list = core->wc_text_prop_to_list;
+//     if (methods->wc_text_prop_to_list == NULL)
+// 	methods->wc_text_prop_to_list = core->wc_text_prop_to_list;
 
-    if (methods->utf8_text_prop_to_list == NULL)
-	methods->utf8_text_prop_to_list = core->utf8_text_prop_to_list;
+//     if (methods->utf8_text_prop_to_list == NULL)
+// 	methods->utf8_text_prop_to_list = core->utf8_text_prop_to_list;
 
-    if (methods->mb_text_list_to_prop == NULL)
-	methods->mb_text_list_to_prop = core->mb_text_list_to_prop;
+//     if (methods->mb_text_list_to_prop == NULL)
+// 	methods->mb_text_list_to_prop = core->mb_text_list_to_prop;
 
-    if (methods->wc_text_list_to_prop == NULL)
-	methods->wc_text_list_to_prop = core->wc_text_list_to_prop;
+//     if (methods->wc_text_list_to_prop == NULL)
+// 	methods->wc_text_list_to_prop = core->wc_text_list_to_prop;
 
-    if (methods->utf8_text_list_to_prop == NULL)
-	methods->utf8_text_list_to_prop = core->utf8_text_list_to_prop;
+//     if (methods->utf8_text_list_to_prop == NULL)
+// 	methods->utf8_text_list_to_prop = core->utf8_text_list_to_prop;
 
-    if (methods->wc_free_string_list == NULL)
-	methods->wc_free_string_list = core->wc_free_string_list;
+//     if (methods->wc_free_string_list == NULL)
+// 	methods->wc_free_string_list = core->wc_free_string_list;
 
-    if (methods->default_string == NULL)
-	methods->default_string = core->default_string;
+//     if (methods->default_string == NULL)
+// 	methods->default_string = core->default_string;
 
-    return True;
-}
+//     return True;
+// }
 
 static Bool
 initialize(
@@ -209,8 +209,10 @@ initialize(
 #endif
 
     _XlcInitCTInfo();
-
-    if (initialize_core(lcd) == False)
+    printf("%s, %d\n", __FILE__, __LINE__);
+    printf("edited!");
+    exit(0);
+    // if (initialize_core(lcd) == False)   // !edited!
 	return False;
 
     name = lcd->core->name;

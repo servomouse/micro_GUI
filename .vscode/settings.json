@@ -23,6 +23,7 @@
         "keysym.h": "c",
         "xlcint.h": "c",
         "xcbint.h": "c",
-        "xc_misc.h": "c"
+        "xc_misc.h": "c",
+        "lsb_output.h": "c"
     }
 }

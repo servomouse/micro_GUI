@@ -30,6 +30,7 @@
 #endif
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 #include "xcb.h"
@@ -76,7 +77,10 @@ static lazyreply *get_lazyreply(xcb_connection_t *c, xcb_extension_t *ext)
     {
         /* cache miss: query the server */
         data->tag = LAZY_COOKIE;
-        data->value.cookie = xcb_query_extension(c, strlen(ext->name), ext->name);
+        printf("%s, %d\n", __FILE__, __LINE__);
+        printf("edited!");
+        exit(0);
+        // data->value.cookie = xcb_query_extension(c, strlen(ext->name), ext->name);
     }
     return data;
 }
@@ -96,7 +100,10 @@ const xcb_query_extension_reply_t *xcb_get_extension_data(xcb_connection_t *c, x
     if(data && data->tag == LAZY_COOKIE)
     {
         data->tag = LAZY_FORCED;
-        data->value.reply = xcb_query_extension_reply(c, data->value.cookie, 0);
+        printf("%s, %d\n", __FILE__, __LINE__);
+        printf("edited!");
+        exit(0);
+        // data->value.reply = xcb_query_extension_reply(c, data->value.cookie, 0);
     }
     pthread_mutex_unlock(&c->ext.lock);
 

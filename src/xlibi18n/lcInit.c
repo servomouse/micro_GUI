@@ -97,6 +97,7 @@ Sun Microsystems, Inc. or its licensors is granted.
 #endif
 #include "X11/Xlibint.h"
 #include "Xlcint.h"
+#include <stdio.h>
 
 #ifdef USE_DYNAMIC_LC
 #undef USE_DEFAULT_LOADER
@@ -117,52 +118,55 @@ void
 _XlcInitLoader(void)
 {
 
-#ifdef USE_DYNAMIC_LC
-    _XlcAddLoader(_XlcDynamicLoad, XlcHead);
-#else /* USE_DYNAMIC_LC */
+// #ifdef USE_DYNAMIC_LC    // !edited!
+//     _XlcAddLoader(_XlcDynamicLoad, XlcHead);
+// #else /* USE_DYNAMIC_LC */
 
-#ifdef USE_GENERIC_LOADER
-    _XlcAddLoader(_XlcGenericLoader, XlcHead);
-#endif
+// #ifdef USE_GENERIC_LOADER
+//     _XlcAddLoader(_XlcGenericLoader, XlcHead);
+// #endif
 
-#ifdef USE_DEFAULT_LOADER
-    _XlcAddLoader(_XlcDefaultLoader, XlcHead);
-#endif
+// #ifdef USE_DEFAULT_LOADER
+//     _XlcAddLoader(_XlcDefaultLoader, XlcHead);
+// #endif
 
-#ifdef USE_UTF8_LOADER
-    _XlcAddLoader(_XlcUtf8Loader, XlcHead);
-#endif
+// #ifdef USE_UTF8_LOADER
+//     _XlcAddLoader(_XlcUtf8Loader, XlcHead);
+// #endif
 
-#ifdef USE_DYNAMIC_LOADER
-    _XlcAddLoader(_XlcDynamicLoader, XlcHead);
-#endif
+// #ifdef USE_DYNAMIC_LOADER
+//     _XlcAddLoader(_XlcDynamicLoader, XlcHead);
+// #endif
 
-#endif /* USE_DYNAMIC_LC */
+// #endif /* USE_DYNAMIC_LC */
 }
 
 void
 _XlcDeInitLoader(void)
 {
+    printf("%s, %d\n", __FILE__, __LINE__);
+    printf("edited!");
+    exit(0);
 
-#ifdef USE_DYNAMIC_LC
-    _XlcRemoveLoader(_XlcDynamicLoad);
-#else /* USE_DYNAMIC_LC */
+// #ifdef USE_DYNAMIC_LC    // !edited!
+//     _XlcRemoveLoader(_XlcDynamicLoad);
+// #else /* USE_DYNAMIC_LC */
 
-#ifdef USE_GENERIC_LOADER
-    _XlcRemoveLoader(_XlcGenericLoader);
-#endif
+// #ifdef USE_GENERIC_LOADER
+//     _XlcRemoveLoader(_XlcGenericLoader);
+// #endif
 
-#ifdef USE_DEFAULT_LOADER
-    _XlcRemoveLoader(_XlcDefaultLoader);
-#endif
+// #ifdef USE_DEFAULT_LOADER
+//     _XlcRemoveLoader(_XlcDefaultLoader);
+// #endif
 
-#ifdef USE_UTF8_LOADER
-    _XlcRemoveLoader(_XlcUtf8Loader);
-#endif
+// #ifdef USE_UTF8_LOADER
+//     _XlcRemoveLoader(_XlcUtf8Loader);
+// #endif
 
-#ifdef USE_DYNAMIC_LOADER
-    _XlcRemoveLoader(_XlcDynamicLoader);
-#endif
+// #ifdef USE_DYNAMIC_LOADER
+//     _XlcRemoveLoader(_XlcDynamicLoader);
+// #endif
 
-#endif /* USE_DYNAMIC_LC */
+// #endif /* USE_DYNAMIC_LC */
 }

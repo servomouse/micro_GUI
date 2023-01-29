@@ -195,14 +195,20 @@ static int read_setup(xcb_connection_t *c)
     case 0: /* failed */
         {
             xcb_setup_failed_t *setup = (xcb_setup_failed_t *) c->setup;
-            write(STDERR_FILENO, xcb_setup_failed_reason(setup), xcb_setup_failed_reason_length(setup));
+            printf("%s, %d\n", __FILE__, __LINE__);
+            printf("edited!");
+            exit(0);
+            // write(STDERR_FILENO, xcb_setup_failed_reason(setup), xcb_setup_failed_reason_length(setup));
             return 0;
         }
 
     case 2: /* authenticate */
         {
             xcb_setup_authenticate_t *setup = (xcb_setup_authenticate_t *) c->setup;
-            write(STDERR_FILENO, xcb_setup_authenticate_reason(setup), xcb_setup_authenticate_reason_length(setup));
+            printf("%s, %d\n", __FILE__, __LINE__);
+            printf("edited!");
+            exit(0);
+            // write(STDERR_FILENO, xcb_setup_authenticate_reason(setup), xcb_setup_authenticate_reason_length(setup));
             return 0;
         }
     }

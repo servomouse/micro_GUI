@@ -110,7 +110,7 @@ static int authname_match(enum auth_protos kind, char *name, size_t namelen)
 
 #define SIN6_ADDR(s) (&((struct sockaddr_in6 *)s)->sin6_addr)
 
-static Xauth *get_authptr(struct sockaddr *sockname, int display)
+static Xauth *get_authptr(struct sockaddr *sockname, int display)    // !edited!
 {
     char *addr = 0;
     int addrlen = 0;
@@ -120,10 +120,12 @@ static Xauth *get_authptr(struct sockaddr *sockname, int display)
     int dispbuflen;
 
     family = FamilyLocal; /* 256 */
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
     switch(sockname->sa_family)
     {
 #ifdef AF_INET6
     case AF_INET6:
+        printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
         addr = (char *) SIN6_ADDR(sockname);
         addrlen = sizeof(*SIN6_ADDR(sockname));
         if(!IN6_IS_ADDR_V4MAPPED(SIN6_ADDR(sockname)))
@@ -136,6 +138,7 @@ static Xauth *get_authptr(struct sockaddr *sockname, int display)
         /* if v4-mapped, fall through. */
 #endif
     case AF_INET:
+        printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
         if(!addr)
             addr = (char *) &((struct sockaddr_in *)sockname)->sin_addr;
         addrlen = sizeof(((struct sockaddr_in *)sockname)->sin_addr);
@@ -143,23 +146,34 @@ static Xauth *get_authptr(struct sockaddr *sockname, int display)
             family = XCB_FAMILY_INTERNET;
         break;
     case AF_UNIX:
+        printf("%s, %d\n", __FILE__, __LINE__);
         break;
     default:
+        printf("%s, %d\n", __FILE__, __LINE__);
         return 0;   /* cannot authenticate this family */
     }
+    printf("%s, %d\n", __FILE__, __LINE__);
 
     dispbuflen = snprintf(dispbuf, sizeof(dispbuf), "%d", display);
+    printf("%s, %d\n", __FILE__, __LINE__);
     if(dispbuflen < 0)
         return 0;
+    printf("%s, %d\n", __FILE__, __LINE__);
     /* snprintf may have truncate our text */
     dispbuflen = MIN(dispbuflen, sizeof(dispbuf) - 1);
+    printf("%s, %d\n", __FILE__, __LINE__);
 
-    if (family == FamilyLocal) {
+    if (family == FamilyLocal)
+    {
+        printf("%s, %d\n", __FILE__, __LINE__);
         if (gethostname(hostnamebuf, sizeof(hostnamebuf)) == -1)
             return 0;   /* do not know own hostname */
+
+        printf("%s, %d\n", __FILE__, __LINE__);
         addr = hostnamebuf;
         addrlen = strlen(addr);
     }
+    printf("%s, %d\n", __FILE__, __LINE__);
 
     return XauGetBestAuthByAddr (family,
                                  (unsigned short) addrlen, addr,
@@ -318,13 +332,17 @@ int _xcb_get_auth_info(int fd, xcb_auth_info_t *info, int display)
     int gotsockname = 0;
     Xauth *authptr = 0;
     int ret = 1;
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
 
     /* Some systems like hpux or Hurd do not expose peer names
      * for UNIX Domain Sockets, but this is irrelevant,
      * since compute_auth() ignores the peer name in this
      * case anyway.*/
-    if ((sockname = get_peer_sock_name(getpeername, fd)) == NULL)
+    sockname = get_peer_sock_name(getpeername, fd);
+    printf("%d\n", sockname->sa_family);
+    if (sockname == NULL)
     {
+        printf("%s, %d\n", __FILE__, __LINE__);
         if ((sockname = get_peer_sock_name(getsockname, fd)) == NULL)
             return 0;   /* can only authenticate sockets */
         if (sockname->sa_family != AF_UNIX)
@@ -334,13 +352,19 @@ int _xcb_get_auth_info(int fd, xcb_auth_info_t *info, int display)
         }
         gotsockname = 1;
     }
-
-    authptr = get_authptr(sockname, display);
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
+    // printf("%s, %d\n", __FILE__, __LINE__);
+    // printf("edited!");
+    // exit(0);
+    authptr = get_authptr(sockname, display);    // !edited!
+    printf("%s, %d\n", __FILE__, __LINE__);
     if (authptr == 0)
     {
+        printf("%s, %d\n", __FILE__, __LINE__);
         free(sockname);
         return 0;   /* cannot find good auth data */
     }
+    printf("%s, %d\n", __FILE__, __LINE__);
 
     info->namelen = memdup(&info->name, authptr->name, authptr->name_length);
     if (!info->namelen)
@@ -367,7 +391,10 @@ int _xcb_get_auth_info(int fd, xcb_auth_info_t *info, int display)
     free(sockname);
     sockname = NULL;
 
-    XauDisposeAuth(authptr);
+    printf("%s, %d\n", __FILE__, __LINE__);
+    printf("edited!");
+    exit(0);
+    // XauDisposeAuth(authptr); // !edited!
     return ret;
 
  no_auth:
@@ -375,6 +402,9 @@ int _xcb_get_auth_info(int fd, xcb_auth_info_t *info, int display)
 
     info->name = 0;
     info->namelen = 0;
-    XauDisposeAuth(authptr);
+    printf("%s, %d\n", __FILE__, __LINE__);
+    printf("edited!");
+    exit(0);
+    // XauDisposeAuth(authptr); // !edited!
     return 0;
 }

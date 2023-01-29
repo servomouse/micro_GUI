@@ -11,6 +11,7 @@ int screen;
 Window win;
 GC gc;
 
+
 void init_x() {
 	/* get the colors black and white (see section for details) */
 	unsigned long black,white;
@@ -18,10 +19,16 @@ void init_x() {
 	/* use the information from the environment variable DISPLAY 
 	   to create the X connection:
 	*/	
+
+	printf("%s, %d\n", __FILE__, __LINE__);
 	dis=XOpenDisplay((char *)0);
+	printf("%s, %d\n", __FILE__, __LINE__);
    	screen=DefaultScreen(dis);
+	printf("%s, %d\n", __FILE__, __LINE__);
 	black=BlackPixel(dis,screen),	/* get color black */
+	printf("%s, %d\n", __FILE__, __LINE__);
 	white=WhitePixel(dis, screen);  /* get color white */
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	/* once the display is initialized, create the window.
 	   This window will be have be 200 pixels across and 300 down.
@@ -68,8 +75,11 @@ void close_x() {
 
 int main(void)
 {
+	int testInteger;
+	printf("%s, %d\n", __FILE__, __LINE__);
     init_x();
-    sleep(10);
+	printf("%s, %d\n", __FILE__, __LINE__);
+    scanf("%d", &testInteger);
     close_x();
     return 0;
 }

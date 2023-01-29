@@ -62,33 +62,53 @@ int _XConnectXCB(Display *dpy, _Xconst char *display, int *screenp)
 
 	dpy->fd = -1;
 
+	printf("%s, %d\n", __FILE__, __LINE__);
 	dpy->xcb = Xcalloc(1, sizeof(_X11XCBPrivate));
 	if(!dpy->xcb)
 		return 0;
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	if(!xcb_parse_display(display, &host, &n, screenp))
 		return 0;
+	printf("%s, %d\n", __FILE__, __LINE__);
 	/* host and n are unused, but xcb_parse_display requires them */
 	free(host);
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	_XLockMutex(_Xglobal_lock);
+	printf("%s, %d\n", __FILE__, __LINE__);
 	if(xauth.name && xauth.data)
+	{
+		printf("%s, %d\n", __FILE__, __LINE__);
 		c = xcb_connect_to_display_with_auth_info(display, &xauth, NULL);
+	}
 	else
+	{
+		printf("%s, %d\n", __FILE__, __LINE__);
 		c = xcb_connect(display, NULL);
+	}
+	printf("%s, %d\n", __FILE__, __LINE__);
 	_XUnlockMutex(_Xglobal_lock);
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	dpy->fd = xcb_get_file_descriptor(c);
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	dpy->xcb->connection = c;
 	dpy->xcb->next_xid = xcb_generate_id(dpy->xcb->connection);
+	printf("%s, %d\n", __FILE__, __LINE__);
 
 	dpy->xcb->event_notify = xcondition_malloc();
+	printf("%s, %d\n", __FILE__, __LINE__);
 	dpy->xcb->reply_notify = xcondition_malloc();
+	printf("%s, %d\n", __FILE__, __LINE__);
 	if (!dpy->xcb->event_notify || !dpy->xcb->reply_notify)
 		return 0;
+	printf("%s, %d\n", __FILE__, __LINE__);
 	xcondition_init(dpy->xcb->event_notify);
+	printf("%s, %d\n", __FILE__, __LINE__);
 	xcondition_init(dpy->xcb->reply_notify);
+	printf("%s, %d\n", __FILE__, __LINE__);
 	return !xcb_connection_has_error(c);
 }
 

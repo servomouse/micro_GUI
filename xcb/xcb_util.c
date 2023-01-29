@@ -484,6 +484,7 @@ static int _xcb_open_abstract(char *protocol, const char *file, size_t filelen)
 
 xcb_connection_t *xcb_connect(const char *displayname, int *screenp)
 {
+    printf("%s, %d\n", __FILE__, __LINE__);
     return xcb_connect_to_display_with_auth_info(displayname, NULL, screenp);
 }
 
@@ -495,47 +496,53 @@ xcb_connection_t *xcb_connect_to_display_with_auth_info(const char *displayname,
     xcb_auth_info_t ourauth;
     xcb_connection_t *c;
 
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
     int parsed = _xcb_parse_display(displayname, &host, &protocol, &display, screenp);
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
 
-    if(!parsed) {
+    if(!parsed)
+    {
+        printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
         c = _xcb_conn_ret_error(XCB_CONN_CLOSED_PARSE_ERR);
+        printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
         goto out;
     }
 
-#ifdef _WIN32
-    WSADATA wsaData;
-    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        c = _xcb_conn_ret_error(XCB_CONN_ERROR);
-        goto out;
-    }
-#endif
-
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
     fd = _xcb_open(host, protocol, display);
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
 
-    if(fd == -1) {
+    if(fd == -1)
+    {
+        printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
         c = _xcb_conn_ret_error(XCB_CONN_ERROR);
-#ifdef _WIN32
-        WSACleanup();
-#endif
         goto out;
     }
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
 
-    if(auth) {
+    if(auth)
+    {
+        printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
         c = xcb_connect_to_fd(fd, auth);
+        printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
         goto out;
     }
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
 
     if(_xcb_get_auth_info(fd, &ourauth, display))
     {
+        printf("%s, %d\n", __FILE__, __LINE__);
         c = xcb_connect_to_fd(fd, &ourauth);
         free(ourauth.name);
         free(ourauth.data);
     }
     else
         c = xcb_connect_to_fd(fd, 0);
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
 
     if(c->has_error)
         goto out;
+    printf("%s, %s, %d\n", __func__, __FILE__, __LINE__);
 
     /* Make sure requested screen number is in bounds for this server */
     if((screenp != NULL) && (*screenp >= (int) c->setup->roots_len)) {
@@ -543,9 +550,12 @@ xcb_connection_t *xcb_connect_to_display_with_auth_info(const char *displayname,
         c = _xcb_conn_ret_error(XCB_CONN_CLOSED_INVALID_SCREEN);
         goto out;
     }
+    printf("%s, %d\n", __FILE__, __LINE__);
 
 out:
     free(host);
+    printf("%s, %d\n", __FILE__, __LINE__);
     free(protocol);
+    printf("%s, %d\n", __FILE__, __LINE__);
     return c;
 }
