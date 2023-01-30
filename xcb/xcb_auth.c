@@ -392,9 +392,8 @@ int _xcb_get_auth_info(int fd, xcb_auth_info_t *info, int display)
     sockname = NULL;
 
     printf("%s, %d\n", __FILE__, __LINE__);
-    printf("edited!");
-    exit(0);
-    // XauDisposeAuth(authptr); // !edited!
+
+    XauDisposeAuth(authptr);
     return ret;
 
  no_auth:
