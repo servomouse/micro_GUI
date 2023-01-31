@@ -60,6 +60,38 @@ static lazyreply *get_index(xcb_connection_t *c, int idx)
     return c->ext.extensions + idx - 1;
 }
 
+xcb_query_extension_cookie_t
+xcb_query_extension (xcb_connection_t *c, uint16_t name_len, const char *name)
+{
+    static const xcb_protocol_request_t xcb_req = {
+        /* count */ 4,
+        /* ext */ 0,
+        /* opcode */ XCB_QUERY_EXTENSION,
+        /* isvoid */ 0
+    };
+    
+    struct iovec xcb_parts[6];
+    xcb_query_extension_cookie_t xcb_ret;
+    xcb_query_extension_request_t xcb_out;
+    
+    xcb_out.pad0 = 0;
+    xcb_out.name_len = name_len;
+    memset(xcb_out.pad1, 0, 2);
+    
+    xcb_parts[2].iov_base = (char *) &xcb_out;
+    xcb_parts[2].iov_len = sizeof(xcb_out);
+    xcb_parts[3].iov_base = 0;
+    xcb_parts[3].iov_len = -xcb_parts[2].iov_len & 3;
+    /* char name */
+    xcb_parts[4].iov_base = (char *) name;
+    xcb_parts[4].iov_len = name_len * sizeof(char);
+    xcb_parts[5].iov_base = 0;
+    xcb_parts[5].iov_len = -xcb_parts[4].iov_len & 3;
+    
+    xcb_ret.sequence = xcb_send_request(c, XCB_REQUEST_CHECKED, xcb_parts + 2, &xcb_req);
+    return xcb_ret;
+}
+
 static lazyreply *get_lazyreply(xcb_connection_t *c, xcb_extension_t *ext)
 {
     static pthread_mutex_t global_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -78,14 +110,33 @@ static lazyreply *get_lazyreply(xcb_connection_t *c, xcb_extension_t *ext)
         /* cache miss: query the server */
         data->tag = LAZY_COOKIE;
         printf("%s, %d\n", __FILE__, __LINE__);
-        printf("edited!");
-        exit(0);
-        // data->value.cookie = xcb_query_extension(c, strlen(ext->name), ext->name);
+        data->value.cookie = xcb_query_extension(c, strlen(ext->name), ext->name);
     }
+    printf("%s, %d\n", __FILE__, __LINE__);
     return data;
 }
 
 /* Public interface */
+
+// void *xcb_wait_for_reply(xcb_connection_t *c, unsigned int request, xcb_generic_error_t **e)
+// {
+//     void *ret;
+//     if(e)
+//         *e = 0;
+//     if(c->has_error)
+//         return 0;
+
+//     pthread_mutex_lock(&c->iolock);
+//     ret = wait_for_reply(c, widen(c, request), e);
+//     pthread_mutex_unlock(&c->iolock);
+//     return ret;
+// }
+
+xcb_query_extension_reply_t *
+xcb_query_extension_reply (xcb_connection_t *c, xcb_query_extension_cookie_t cookie, xcb_generic_error_t **e)
+{
+    return (xcb_query_extension_reply_t *) xcb_wait_for_reply(c, cookie.sequence, e);
+}
 
 /* Do not free the returned xcb_query_extension_reply_t - on return, it's aliased
  * from the cache. */
@@ -101,9 +152,7 @@ const xcb_query_extension_reply_t *xcb_get_extension_data(xcb_connection_t *c, x
     {
         data->tag = LAZY_FORCED;
         printf("%s, %d\n", __FILE__, __LINE__);
-        printf("edited!");
-        exit(0);
-        // data->value.reply = xcb_query_extension_reply(c, data->value.cookie, 0);
+        data->value.reply = xcb_query_extension_reply(c, data->value.cookie, 0);
     }
     pthread_mutex_unlock(&c->ext.lock);
 

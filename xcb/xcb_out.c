@@ -156,29 +156,83 @@ static void prepare_socket_request(xcb_connection_t *c)
 //     pthread_mutex_unlock(&c->out.reqlenlock);
 // }
 
+xcb_extension_t xcb_big_requests_id = { "BIG-REQUESTS", 0 };
+
+xcb_big_requests_enable_cookie_t
+xcb_big_requests_enable (xcb_connection_t *c  /**< */)
+{
+    static const xcb_protocol_request_t xcb_req = {
+        /* count */ 2,
+        /* ext */ &xcb_big_requests_id,
+        /* opcode */ XCB_BIG_REQUESTS_ENABLE,
+        /* isvoid */ 0
+    };
+
+    struct iovec xcb_parts[4];
+    xcb_big_requests_enable_cookie_t xcb_ret;
+    xcb_big_requests_enable_request_t xcb_out;
+
+
+    xcb_parts[2].iov_base = (char *) &xcb_out;
+    xcb_parts[2].iov_len = sizeof(xcb_out);
+    xcb_parts[3].iov_base = 0;
+    xcb_parts[3].iov_len = -xcb_parts[2].iov_len & 3;
+
+    xcb_ret.sequence = xcb_send_request(c, XCB_REQUEST_CHECKED, xcb_parts + 2, &xcb_req);
+    return xcb_ret;
+}
+
+void xcb_prefetch_maximum_request_length(xcb_connection_t *c)
+{
+    if(c->has_error)
+        return;
+    pthread_mutex_lock(&c->out.reqlenlock);
+    if(c->out.maximum_request_length_tag == LAZY_NONE)
+    {
+        const xcb_query_extension_reply_t *ext;
+        ext = xcb_get_extension_data(c, &xcb_big_requests_id);
+        if(ext && ext->present)
+        {
+            c->out.maximum_request_length_tag = LAZY_COOKIE;
+            c->out.maximum_request_length.cookie = xcb_big_requests_enable(c);
+        }
+        else
+        {
+            c->out.maximum_request_length_tag = LAZY_FORCED;
+            c->out.maximum_request_length.value = c->setup->maximum_request_length;
+        }
+    }
+    pthread_mutex_unlock(&c->out.reqlenlock);
+}
+
+xcb_big_requests_enable_reply_t *
+xcb_big_requests_enable_reply (xcb_connection_t                  *c  /**< */,
+                               xcb_big_requests_enable_cookie_t   cookie  /**< */,
+                               xcb_generic_error_t              **e  /**< */)
+{
+    return (xcb_big_requests_enable_reply_t *) xcb_wait_for_reply(c, cookie.sequence, e);
+}
+
 uint32_t xcb_get_maximum_request_length(xcb_connection_t *c)
 {
     if(c->has_error)
         return 0;
     printf("%s, %d\n", __FILE__, __LINE__);
-    printf("edited!");
-    exit(0);
-    // xcb_prefetch_maximum_request_length(c);  // !edited!
+
+    xcb_prefetch_maximum_request_length(c);
     pthread_mutex_lock(&c->out.reqlenlock);
     if(c->out.maximum_request_length_tag == LAZY_COOKIE)
     {
         printf("%s, %d\n", __FILE__, __LINE__);
-        printf("edited!");
-        exit(0);
-        // xcb_big_requests_enable_reply_t *r = xcb_big_requests_enable_reply(c, c->out.maximum_request_length.cookie, 0);
-        // c->out.maximum_request_length_tag = LAZY_FORCED;
-        // if(r)
-        // {
-        //     c->out.maximum_request_length.value = r->maximum_request_length;
-        //     free(r);
-        // }
-        // else
-        //     c->out.maximum_request_length.value = c->setup->maximum_request_length;
+        xcb_big_requests_enable_reply_t *r = xcb_big_requests_enable_reply(c, c->out.maximum_request_length.cookie, 0);
+        c->out.maximum_request_length_tag = LAZY_FORCED;
+        if(r)
+        {
+            c->out.maximum_request_length.value = r->maximum_request_length;
+            free(r);
+        }
+        else
+            c->out.maximum_request_length.value = c->setup->maximum_request_length;
     }
     pthread_mutex_unlock(&c->out.reqlenlock);
     return c->out.maximum_request_length.value;

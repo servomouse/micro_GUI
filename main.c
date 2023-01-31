@@ -20,22 +20,16 @@ void init_x() {
 	   to create the X connection:
 	*/	
 
-	printf("%s, %d\n", __FILE__, __LINE__);
 	dis=XOpenDisplay((char *)0);
-	printf("%s, %d\n", __FILE__, __LINE__);
    	screen=DefaultScreen(dis);
-	printf("%s, %d\n", __FILE__, __LINE__);
 	black=BlackPixel(dis,screen),	/* get color black */
-	printf("%s, %d\n", __FILE__, __LINE__);
 	white=WhitePixel(dis, screen);  /* get color white */
-	printf("%s, %d\n", __FILE__, __LINE__);
 
 	/* once the display is initialized, create the window.
 	   This window will be have be 200 pixels across and 300 down.
 	   It will have the foreground white and background black
 	*/
-   	win=XCreateSimpleWindow(dis,DefaultRootWindow(dis),0,0,	
-		200, 300, 5, white, black);
+   	win=XCreateSimpleWindow(dis,DefaultRootWindow(dis),0,0,	200, 300, 5, white, black);
 
 	/* here is where some properties of the window can be set.
 	   The third and fourth items indicate the name which appears
@@ -50,7 +44,7 @@ void init_x() {
 	XSelectInput(dis, win, ExposureMask|ButtonPressMask|KeyPressMask);
 
 	/* create the Graphics Context */
-        gc=XCreateGC(dis, win, 0,0);        
+    gc=XCreateGC(dis, win, 0,0);        
 
 	/* here is another routine to set the foreground and background
 	   colors _currently_ in use in the window.
@@ -76,9 +70,7 @@ void close_x() {
 int main(void)
 {
 	int testInteger;
-	printf("%s, %d\n", __FILE__, __LINE__);
     init_x();
-	printf("%s, %d\n", __FILE__, __LINE__);
     scanf("%d", &testInteger);
     close_x();
     return 0;
