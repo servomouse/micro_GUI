@@ -1,39 +1,34 @@
-// Build with:
-// gcc main.c -o x11 -g -Wall
-// Tested on xubuntu 20.
-
-// Platform includes
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-
-// Standard includes
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+
+// currently it is just a copy of the source code from https://github.com/abainbridge/x11_socket 
+// with some clean up to make the code more readable for me
+
+// User-specific defines:
+#define X_SOCKET_PATH 		"/tmp/.X11-unix/X1"
+#define XAUTHORITY_PATH 	"/run/user/1000/gdm/Xauthority"
+// ~User-specific defines
+
+#define ERROR	{printf("%s, %s, %d\n", __func__, __FILE__, __LINE__); exit(0);}
+
+#define X11_OPCODE_CREATE_WINDOW 		1
+#define X11_OPCODE_MAP_WINDOW 			8
+#define X11_OPCODE_CREATE_GC 			55
+#define X11_OPCODE_PUT_IMAGE 			72
+#define X11_CW_EVENT_MASK 				1<<11
+#define X11_EVENT_MASK_KEY_PRESS 		1
+#define X11_EVENT_MASK_POINTER_MOTION 	1<<6
 
 
-#define FATAL_ERROR(msg, ...) { fprintf(stderr, msg "\n", ##__VA_ARGS__); exit(-1); }
 
-
-//
-// X11 protocol definitions
-
-enum {
-    X11_OPCODE_CREATE_WINDOW = 1,
-    X11_OPCODE_MAP_WINDOW = 8,
-    X11_OPCODE_CREATE_GC = 55,
-    X11_OPCODE_PUT_IMAGE = 72,
-
-    X11_CW_EVENT_MASK = 1<<11,
-    X11_EVENT_MASK_KEY_PRESS = 1,
-    X11_EVENT_MASK_POINTER_MOTION = 1<<6,
-};
-
-
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed))
+{
     uint8_t order;
     uint8_t pad1;
     uint16_t major_version, minor_version;
@@ -43,7 +38,8 @@ typedef struct __attribute__((packed)) {
 } connection_request_t;
 
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed))
+{
     uint32_t root_id;
     uint32_t colormap;
     uint32_t white, black;
@@ -59,7 +55,8 @@ typedef struct __attribute__((packed)) {
 } screen_t;
 
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed))
+{
     uint8_t depth;
     uint8_t bpp;
     uint8_t scanline_pad;
@@ -67,7 +64,8 @@ typedef struct __attribute__((packed)) {
 } pixmap_format_t;
 
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed))
+{
     uint32_t release;
     uint32_t id_base, id_mask;
     uint32_t motion_buffer_size;
@@ -84,7 +82,8 @@ typedef struct __attribute__((packed)) {
 } connection_reply_success_body_t;
 
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed))
+{
     uint8_t success;
     uint8_t pad;
     uint16_t major_version, minor_version;
@@ -92,7 +91,8 @@ typedef struct __attribute__((packed)) {
 } connection_reply_header_t;
 
 
-typedef struct __attribute__((packed)) {
+typedef struct __attribute__((packed))
+{
     uint8_t group;
     uint8_t bits;
     uint16_t colormap_entries;
@@ -100,64 +100,63 @@ typedef struct __attribute__((packed)) {
     uint32_t pad;
 } visual_t;
 
-// End of X11 protocol definitions
-//
 
-
-typedef struct {
+typedef struct
+{
     int socket_fd;
 
     connection_reply_header_t connection_reply_header;
     connection_reply_success_body_t *connection_reply_success_body;
-
-    pixmap_format_t *pixmap_formats; // Points into connection_reply_success_body.
-    screen_t *screens; // Points into connection_reply_success_body.
-
+    pixmap_format_t *pixmap_formats;
+    screen_t *screens;
     uint32_t next_resource_id;
     uint32_t graphics_context_id;
     uint32_t window_id;
 } state_t;
 
 
-static void fatal_write(int fd, const void *buf, size_t count) {
-    if (write(fd, buf, count) != count) {
-        FATAL_ERROR("Failed to write.");
-    }
+static void fatal_write(int fd, const void *buf, size_t count)
+{
+    if(write(fd, buf, count) != count)
+        ERROR;
 }
 
 
-static void fatal_read(int fd, void *buf, size_t count) {
-    if (recvfrom(fd, buf, count, 0, NULL, NULL) != count) {
-        FATAL_ERROR("Failed to read.");
-    }
+static void fatal_read(int fd, void *buf, size_t count)
+{
+    if(recvfrom(fd, buf, count, 0, NULL, NULL) != count)
+        ERROR;
+}
+
+// Read Xauthority
+size_t read_xauth_file(uint8_t *buf)
+{
+	FILE *xauth_file = fopen(XAUTHORITY_PATH, "rb");
+    if (!xauth_file)
+        ERROR;
+    size_t xauth_len = fread(buf, 1, 4096, xauth_file);
+    if (xauth_len < 0)
+        ERROR;
+    fclose(xauth_file);
+	return xauth_len;
 }
 
 
-void x11_init(state_t *state) {
+void x11_init(state_t *state)
+{
     // Open socket and connect.
     state->socket_fd = socket(AF_UNIX, SOCK_STREAM | SOCK_CLOEXEC, 0);
-    if (state->socket_fd < 0) {
-        FATAL_ERROR("Create socket failed");
-    }
-    struct sockaddr_un serv_addr = { 0 };
+    if (state->socket_fd < 0)
+        ERROR;
+	
+    struct sockaddr_un serv_addr = {0};
     serv_addr.sun_family = AF_UNIX;
-    strcpy(serv_addr.sun_path, "/tmp/.X11-unix/X1");
-    if (connect(state->socket_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
-        FATAL_ERROR("Couldn't connect");
-    }
+    strcpy(serv_addr.sun_path, X_SOCKET_PATH);
+    if (connect(state->socket_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+        ERROR;
 
-    // Read Xauthority.
     char xauth_cookie[4096];
-    // FILE *xauth_file = fopen("/home/master/.Xauthority", "rb");
-    FILE *xauth_file = fopen("/run/user/1000/gdm/Xauthority", "rb");
-    if (!xauth_file) {
-        FATAL_ERROR("Couldn't open .Xauthority.");
-    }
-    size_t xauth_len = fread(xauth_cookie, 1, sizeof(xauth_cookie), xauth_file);
-    if (xauth_len < 0) {
-        FATAL_ERROR("Couldn't read from .Xauthority.");
-    }
-    fclose(xauth_file);
+	size_t xauth_len = read_xauth_file(xauth_cookie);
 
     // Send connection request.
     connection_request_t request = { 0 };
@@ -172,32 +171,29 @@ void x11_init(state_t *state) {
 
     // Read connection reply header.
     fatal_read(state->socket_fd, &state->connection_reply_header, sizeof(connection_reply_header_t));
-    if (state->connection_reply_header.success == 0) {
-        FATAL_ERROR("Connection reply indicated failure.");
-    }
+    if (state->connection_reply_header.success == 0)
+        ERROR;
 
     // Read rest of connection reply.
     state->connection_reply_success_body = malloc(state->connection_reply_header.len * 4);
-    fatal_read(state->socket_fd, state->connection_reply_success_body,
-               state->connection_reply_header.len * 4);
+    fatal_read(state->socket_fd, state->connection_reply_success_body, state->connection_reply_header.len * 4);
 
     // Set some pointers into the connection reply because they'll be convenient later.
     int vendor_len_plus_padding = (state->connection_reply_success_body->vendor_len + 3) & ~3;
-    state->pixmap_formats = (pixmap_format_t *)(state->connection_reply_success_body->vendor_string +
-                             vendor_len_plus_padding);
-    state->screens = (screen_t *)(state->pixmap_formats +
-                                  state->connection_reply_success_body->num_pixmap_formats);
-
+    state->pixmap_formats = (pixmap_format_t *)(state->connection_reply_success_body->vendor_string + vendor_len_plus_padding);
+    state->screens = (screen_t *)(state->pixmap_formats + state->connection_reply_success_body->num_pixmap_formats);
     state->next_resource_id = state->connection_reply_success_body->id_base;
 }
 
 
-static uint32_t generate_id(state_t *state) {
+static uint32_t generate_id(state_t *state)
+{
     return state->next_resource_id++;
 }
 
 
-void create_gc(state_t *state) {
+void create_gc(state_t *state)
+{
     state->graphics_context_id = generate_id(state);
     int const len = 4;
     uint32_t packet[len];
@@ -210,7 +206,8 @@ void create_gc(state_t *state) {
 }
 
 
-void create_window(state_t *state, uint16_t w, uint16_t h, uint32_t window_parent) {
+void create_window(state_t *state, uint16_t w, uint16_t h, uint32_t window_parent)
+{
     state->window_id = generate_id(state);
 
     int const len = 8;
@@ -228,7 +225,8 @@ void create_window(state_t *state, uint16_t w, uint16_t h, uint32_t window_paren
 }
 
 
-void map_window(state_t *state) {
+void map_window(state_t *state)
+{
     int const len = 2;
     uint32_t packet[len];
     packet[0] = X11_OPCODE_MAP_WINDOW | len<<16;
@@ -237,21 +235,21 @@ void map_window(state_t *state) {
 }
 
 
-void put_image(state_t *state) {
+void put_image(state_t *state)
+{
     enum { W = 100, H = 100 };
     enum { BITMAP_SIZE_BYTES = W * H * 4 };
 
     static uint32_t *packet = NULL;
-    if (!packet) {
+    if (!packet)
         packet = malloc(24 + BITMAP_SIZE_BYTES);
-    }
 
     uint32_t *bmp = packet + 6;
-    for (int y = 0; y < H; y++) {
+    for (int y = 0; y < H; y++)
+	{
         uint32_t *row = bmp + y * W;
-        for (int x = 0; x < W; x++) {
+        for (int x = 0; x < W; x++)
             row[x] = (x << 8) + y;
-        }
     }
 
     uint32_t bmp_format = 2 << 8;
@@ -274,7 +272,8 @@ int main() {
     create_window(&state, 320, 240, state.screens[0].root_id);
     map_window(&state);
 
-    while (1) {
+    while (1)
+	{
         put_image(&state);
         usleep(10000);
     }
