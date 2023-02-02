@@ -7,7 +7,6 @@
 
 int main(void)
 {
-	init_gui();
 	create_window(320, 320);
 
     while (1)

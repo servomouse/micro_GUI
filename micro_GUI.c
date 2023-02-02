@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
+#include <sys/stat.h>   // for getting file info
 
 // currently it is just a copy of the source code from https://github.com/abainbridge/x11_socket 
 // with some clean up to make the code more readable for me
@@ -16,6 +17,8 @@
 
 #define RED "\e[0;31m"
 #define NC "\e[0m"
+
+#define COOKIE_LEN 16
 
 #define X11_OPCODE_CREATE_WINDOW 		1
 #define X11_OPCODE_MAP_WINDOW 			8
@@ -114,24 +117,31 @@ static void soc_write(int fd, const void *buf, size_t count)
         CRITICAL_ERROR;
 }
 
-
 static void soc_read(int fd, void *buf, size_t count)
 {
     if(recvfrom(fd, buf, count, 0, NULL, NULL) != count)
         CRITICAL_ERROR;
 }
 
-// Read Xauthority
-size_t read_xauth_file(uint8_t *buf)
+// Read Xauthority cookie
+uint8_t * read_magic_cookie(void)
 {
+    static uint8_t cookie[COOKIE_LEN] = {0};
+    struct stat st;
 	FILE *xauth_file = fopen(XAUTHORITY_PATH, "rb");
-    if (!xauth_file)
-        CRITICAL_ERROR;
-    size_t xauth_len = fread(buf, 1, 4096, xauth_file);
-    if (xauth_len < 0)
-        CRITICAL_ERROR;
-    fclose(xauth_file);
-	return xauth_len;
+    if(!xauth_file)
+    {
+        fprintf(stderr, RED "ERROR: can't open " XAUTHORITY_PATH " !" NC);
+        exit(EXIT_FAILURE); // this is, in fact, critical error
+    }
+    fseek(xauth_file, -1L * COOKIE_LEN, SEEK_END); 
+    int len = fread(cookie, 1, COOKIE_LEN, xauth_file); // Read last 16 bytes
+    if(16 != len)
+    {
+        fprintf(stderr, RED "ERROR: can't read " XAUTHORITY_PATH " !" NC);
+        exit(EXIT_FAILURE); // this is, in fact, critical error
+    }
+    return cookie;
 }
 
 void x11_init(state_t *state)
@@ -147,8 +157,7 @@ void x11_init(state_t *state)
     if (connect(state->socket_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
         CRITICAL_ERROR;
 
-    char xauth_cookie[4096];
-	size_t xauth_len = read_xauth_file(xauth_cookie);
+    char * magic_cookie = read_magic_cookie();
 
     // Send connection request.
     connection_request_t request = { 0 };
@@ -159,7 +168,7 @@ void x11_init(state_t *state)
     request.auth_proto_data_len = 16;
     soc_write(state->socket_fd, &request, sizeof(connection_request_t));
     soc_write(state->socket_fd, "MIT-MAGIC-COOKIE-1\0\0", 20);
-    soc_write(state->socket_fd, xauth_cookie + xauth_len - 16, 16);
+    soc_write(state->socket_fd, magic_cookie, COOKIE_LEN);
 
     // Read connection reply header.
     soc_read(state->socket_fd, &state->connection_reply_header, sizeof(connection_reply_header_t));
@@ -270,6 +279,7 @@ int init_gui(void)
 
 int create_window(int height, int width)
 {
+	init_gui();
     put_window(window, width, height, window->screens[0].root_id);
     map_window(window);
     return EXIT_SUCCESS;
