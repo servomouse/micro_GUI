@@ -1,4 +1,5 @@
 #include "micro_GUI.h"
+#include "micro_GUI_defines.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -20,10 +21,6 @@
 
 #define COOKIE_LEN 16
 
-#define X11_OPCODE_CREATE_WINDOW 		1
-#define X11_OPCODE_MAP_WINDOW 			8
-#define X11_OPCODE_CREATE_GC 			55
-#define X11_OPCODE_PUT_IMAGE 			72
 #define X11_CW_EVENT_MASK 				1<<11
 #define X11_EVENT_MASK_KEY_PRESS 		1
 #define X11_EVENT_MASK_POINTER_MOTION 	1<<6
@@ -196,7 +193,7 @@ void create_gc(state_t *state)
     state->graphics_context_id = generate_id(state);
     int const len = 4;
     uint32_t packet[len];
-    packet[0] = X11_OPCODE_CREATE_GC | len<<16;
+    packet[0] = X_CreateGC | len<<16;
     packet[1] = state->graphics_context_id;
     packet[2] = state->screens[0].root_id;
     packet[3] = 0; // Value mask.
@@ -204,23 +201,52 @@ void create_gc(state_t *state)
     soc_write(state->socket_fd, packet, len * 4);
 }
 
-
 static void put_window(state_t *state, uint16_t w, uint16_t h, uint32_t window_parent)
 {
     state->window_id = generate_id(state);
 
-    int const len = 8;
-    uint32_t packet[len];
-    packet[0] = X11_OPCODE_CREATE_WINDOW | len<<16;
-    packet[1] = state->window_id;
-    packet[2] = window_parent;
-    packet[3] = 0; // x,y pos. System will position window.
-    packet[4] = w | (h<<16);
-    packet[5] = 0; // DEFAULT_BORDER and DEFAULT_GROUP.
-    packet[6] = 0; // Visual: Copy from parent.
-    packet[7] = 0; // value_mask;
+    struct {    // xCreateWindowReq
+        uint8_t reqType;
+        uint8_t depth;
+        uint16_t length;
+        uint32_t w_id;
+        uint32_t parent;
+        int16_t x;
+        int16_t y;
+        uint16_t width;  
+        uint16_t height;  
+        uint16_t borderWidth;  
+        uint16_t class;
+        uint32_t visual;
+        uint32_t mask;
+    } req;
 
-    soc_write(state->socket_fd, packet, sizeof(packet));
+    req.reqType = X_CreateWindow;
+    req.depth = 0;
+    req.length = sizeof(req)/4;
+    req.w_id = state->window_id;
+    req.parent = window_parent;
+    req.x = 0;  // System will position window.
+    req.y = 0;  // System will position window.
+    req.width = w;
+    req.height = h;
+    req.borderWidth = 0;
+    req.class = 0;
+    req.visual = 0;
+    req.mask = 0;
+
+    // int const len = 8;
+    // uint32_t packet[len];
+    // packet[0] = X_CreateWindow | len<<16;
+    // packet[1] = state->window_id;
+    // packet[2] = window_parent;
+    // packet[3] = 0; // x,y pos. System will position window.
+    // packet[4] = w | (h<<16);
+    // packet[5] = 0; // DEFAULT_BORDER and DEFAULT_GROUP.
+    // packet[6] = 0; // Visual: Copy from parent.
+    // packet[7] = 0; // value_mask;
+
+    soc_write(state->socket_fd, &req, sizeof(req));
 }
 
 
@@ -228,7 +254,7 @@ void map_window(state_t *state)
 {
     int const len = 2;
     uint32_t packet[len];
-    packet[0] = X11_OPCODE_MAP_WINDOW | len<<16;
+    packet[0] = X_MapWindow | len<<16;
     packet[1] = state->window_id;
     soc_write(state->socket_fd, packet, 8);
 }
@@ -239,9 +265,7 @@ void put_image(state_t *state)
     enum { W = 100, H = 100 };
     enum { BITMAP_SIZE_BYTES = W * H * 4 };
 
-    static uint32_t *packet = NULL;
-    if (!packet)
-        packet = malloc(24 + BITMAP_SIZE_BYTES);
+    uint32_t *packet = malloc(24 + BITMAP_SIZE_BYTES);
 
     uint32_t *bmp = packet + 6;
     for (int y = 0; y < H; y++)
@@ -253,7 +277,7 @@ void put_image(state_t *state)
 
     uint32_t bmp_format = 2 << 8;
     uint32_t request_len = (uint32_t)(W * H + 6) << 16;
-    packet[0] = X11_OPCODE_PUT_IMAGE | bmp_format | request_len;
+    packet[0] = X_PutImage | bmp_format | request_len;
     packet[1] = state->window_id;
     packet[2] = state->graphics_context_id;
     packet[3] = W | (H << 16); // Width and height.
@@ -261,9 +285,10 @@ void put_image(state_t *state)
     packet[5] = 24 << 8; // Bit depth.
 
     soc_write(state->socket_fd, packet, 24 + BITMAP_SIZE_BYTES);
+    free(packet);
 }
 
-int init_gui(void)
+static int init_gui(void)
 {
     static state_t app;
     if(NULL == window)
@@ -279,7 +304,8 @@ int init_gui(void)
 
 int create_window(int height, int width)
 {
-	init_gui();
+	if(EXIT_FAILURE == init_gui())
+        return EXIT_FAILURE;
     put_window(window, width, height, window->screens[0].root_id);
     map_window(window);
     return EXIT_SUCCESS;
@@ -288,6 +314,49 @@ int create_window(int height, int width)
 int update_window(void)
 {
     put_image(window);
+    return EXIT_SUCCESS;
+}
+
+int window_get_dimensions(int * width, int * height)
+{
+    struct __attribute__((packed)){
+        uint8_t type;   /* X_Reply */
+        uint8_t depth;
+        uint16_t sequenceNumber;
+        uint32_t length;  /* 0 */
+        uint32_t root;
+        uint16_t x, y;
+        uint16_t width, height;
+        uint16_t borderWidth;
+        uint16_t pad1;
+        uint32_t pad2;
+        uint32_t pad3;
+    } rep;
+
+    struct  __attribute__((packed)){
+        uint8_t reqType;
+        uint8_t pad;
+        uint16_t length;
+        uint32_t id;  /* a Window, Drawable, Font, GContext, Pixmap, etc. */
+    } req;
+
+    req.reqType = X_GetGeometry;
+    req.length = sizeof(req) / 4;
+    req.id = window->window_id;
+    soc_write(window->socket_fd, &req, sizeof(req));
+
+    // Read connection reply header.
+
+    uint8_t * p = (uint8_t*)&rep;
+    uint8_t * r = (uint8_t*)&req;
+    soc_read(window->socket_fd, &rep, sizeof(rep));
+    // *root = rep.root;
+    // *x = rep.x;
+    // *y = rep.y;
+    *width = rep.width;
+    *height = rep.height;
+    // *borderWidth = rep.borderWidth;
+    // *depth = rep.depth;
     return EXIT_SUCCESS;
 }
 

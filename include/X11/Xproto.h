@@ -464,17 +464,17 @@ typedef struct {
     } xGetWindowAttributesReply;
 
 typedef struct {
-    BYTE type;   /* X_Reply */
-    CARD8 depth;
-    CARD16 sequenceNumber B16;
-    CARD32 length B32;  /* 0 */
-    Window root B32;
-    INT16 x B16, y B16;
-    CARD16 width B16, height B16;
-    CARD16 borderWidth B16;
-    CARD16 pad1 B16;
-    CARD32 pad2 B32;
-    CARD32 pad3 B32;
+    unsigned char type;   /* X_Reply */
+    unsigned char depth;
+    unsigned short sequenceNumber B16;
+    unsigned int length B32;  /* 0 */
+    unsigned int root B32;
+    short x B16, y B16;
+    unsigned short width B16, height B16;
+    unsigned short borderWidth B16;
+    unsigned short pad1 B16;
+    unsigned int pad2 B32;
+    unsigned int pad3 B32;
     } xGetGeometryReply;
 
 typedef struct {
@@ -1326,10 +1326,10 @@ typedef struct _xReq {
    (or Atom or Time) as its one and only argument.  */
 
 typedef struct {
-    CARD8 reqType;
-    BYTE pad;
-    CARD16 length B16;
-    CARD32 id B32;  /* a Window, Drawable, Font, GContext, Pixmap, etc. */
+    uint8_t reqType;
+    uint8_t pad;
+    uint16_t length B16;
+    uint32_t id B32;  /* a Window, Drawable, Font, GContext, Pixmap, etc. */
     } xResourceReq;
 
 typedef struct {
@@ -2132,8 +2132,8 @@ typedef struct { /* followed by LIST of ATOM */
 #define X_SetAccessControl             111               
 #define X_SetCloseDownMode             112
 #define X_KillClient                   113 
-#define X_RotateProperties	       114
-#define X_ForceScreenSaver	       115
+#define X_RotateProperties	           114
+#define X_ForceScreenSaver	           115
 #define X_SetPointerMapping            116
 #define X_GetPointerMapping            117
 #define X_SetModifierMapping	       118
