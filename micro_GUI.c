@@ -260,31 +260,22 @@ void map_window(state_t *state)
 }
 
 
-void put_image(state_t *state)
+void put_image(uint32_t width, uint32_t height, uint32_t *buf)
 {
-    enum { W = 100, H = 100 };
-    enum { BITMAP_SIZE_BYTES = W * H * 4 };
-
-    uint32_t *packet = malloc(24 + BITMAP_SIZE_BYTES);
-
-    uint32_t *bmp = packet + 6;
-    for (int y = 0; y < H; y++)
-	{
-        uint32_t *row = bmp + y * W;
-        for (int x = 0; x < W; x++)
-            row[x] = (x << 8) + y;
-    }
-
     uint32_t bmp_format = 2 << 8;
-    uint32_t request_len = (uint32_t)(W * H + 6) << 16;
+    uint32_t request_len = (uint32_t)(width * height + 6) << 16;
+    uint32_t buf_size = width * height * 4; // buffer size on bytes
+    
+    uint32_t *packet = malloc(24 + buf_size);
+    memcpy(&packet[6], buf, buf_size);
     packet[0] = X_PutImage | bmp_format | request_len;
-    packet[1] = state->window_id;
-    packet[2] = state->graphics_context_id;
-    packet[3] = W | (H << 16); // Width and height.
+    packet[1] = window->window_id;
+    packet[2] = window->graphics_context_id;
+    packet[3] = width | (height << 16); // Width and height.
     packet[4] = 0; // Dst X and Y.
     packet[5] = 24 << 8; // Bit depth.
 
-    soc_write(state->socket_fd, packet, 24 + BITMAP_SIZE_BYTES);
+    soc_write(window->socket_fd, packet, 24 + buf_size);
     free(packet);
 }
 
@@ -311,9 +302,29 @@ int create_window(int height, int width)
     return EXIT_SUCCESS;
 }
 
-int update_window(void)
+int update_window(uint32_t width, uint32_t height, uint32_t *buf)
 {
-    put_image(window);
+    put_image(width, height, buf);
+    return EXIT_SUCCESS;
+}
+
+int update_image(uint32_t width, uint32_t height, uint32_t *buf, uint32_t x_off, uint32_t y_off)
+{
+    uint32_t bmp_format = 2 << 8;
+    uint32_t request_len = (uint32_t)(width * height + 6) << 16;
+    uint32_t buf_size = width * height * 4; // buffer size on bytes
+    
+    uint32_t *packet = malloc(24 + buf_size);
+    memcpy(&packet[6], buf, buf_size);
+    packet[0] = X_PutImage | bmp_format | request_len;
+    packet[1] = window->window_id;
+    packet[2] = window->graphics_context_id;
+    packet[3] = width | (height << 16); // Width and height.
+    packet[4] = x_off | (y_off << 16); // Dst X and Y.
+    packet[5] = 24 << 8; // Bit depth.
+
+    soc_write(window->socket_fd, packet, 24 + buf_size);
+    free(packet);
     return EXIT_SUCCESS;
 }
 
@@ -357,6 +368,76 @@ int window_get_dimensions(int * width, int * height)
     *height = rep.height;
     // *borderWidth = rep.borderWidth;
     // *depth = rep.depth;
+    return EXIT_SUCCESS;
+}
+
+int window_get_position(int * x, int * y)
+{
+    struct __attribute__((packed)){
+        uint8_t type;   /* X_Reply */
+        uint8_t depth;
+        uint16_t sequenceNumber;
+        uint32_t length;  /* 0 */
+        uint32_t root;
+        uint16_t x, y;
+        uint16_t width, height;
+        uint16_t borderWidth;
+        uint16_t pad1;
+        uint32_t pad2;
+        uint32_t pad3;
+    } rep;
+
+    struct  __attribute__((packed)){
+        uint8_t reqType;
+        uint8_t pad;
+        uint16_t length;
+        uint32_t id;  /* a Window, Drawable, Font, GContext, Pixmap, etc. */
+    } req;
+
+    req.reqType = X_GetGeometry;
+    req.length = sizeof(req) / 4;
+    req.id = window->window_id;
+    soc_write(window->socket_fd, &req, sizeof(req));
+
+    // Read connection reply header.
+
+    uint8_t * p = (uint8_t*)&rep;
+    uint8_t * r = (uint8_t*)&req;
+    soc_read(window->socket_fd, &rep, sizeof(rep));
+    // *root = rep.root;
+    *x = rep.x;
+    *y = rep.y;
+    // *width = rep.width;
+    // *height = rep.height;
+    // *borderWidth = rep.borderWidth;
+    // *depth = rep.depth;
+    return EXIT_SUCCESS;
+}
+
+int window_move(int x, int y)
+{
+    struct {
+        uint8_t reqType;
+        uint8_t pad;
+        uint16_t length;
+        uint32_t id;
+        uint16_t mask;
+        uint16_t pad2;
+        uint32_t x;
+        uint32_t y;
+    } req = {0};
+    req.reqType = X_ConfigureWindow;
+    req.length = sizeof(req)/4;
+    req.id = window->window_id;
+    req.mask = CWX | CWY;
+    int curr_x, curr_y;
+    window_get_position(&curr_x, &curr_y);
+    printf("current position: %d, %d ", curr_x, curr_y);
+    req.x = curr_x + x;
+    req.x = curr_y + y;
+    soc_write(window->socket_fd, &req, sizeof(req));
+    // window_get_position(&curr_x, &curr_y);
+    // printf("new position: %d, %d\n", curr_x, curr_y);
     return EXIT_SUCCESS;
 }
 

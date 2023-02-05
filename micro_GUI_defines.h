@@ -122,3 +122,13 @@
 #define X_SetModifierMapping	       118
 #define X_GetModifierMapping	       119
 #define X_NoOperation                  127
+
+/* ConfigureWindow structure */
+
+#define CWX			(1<<0)
+#define CWY			(1<<1)
+#define CWWidth			(1<<2)
+#define CWHeight		(1<<3)
+#define CWBorderWidth		(1<<4)
+#define CWSibling		(1<<5)
+#define CWStackMode		(1<<6)
