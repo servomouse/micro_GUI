@@ -12,8 +12,22 @@
 
 #define WIDTH 480
 #define HEIGHT 480
-uint32_t frame[HEIGHT][WIDTH] = {[0 ... HEIGHT-1][0 ... WIDTH-1] = 0x0000FF00};
+uint32_t frame[HEIGHT][WIDTH] = {[0 ... HEIGHT-1][0 ... WIDTH-1] = 0x00505050};
 // int temp[128] = {[0 ... 127] = 0x10};
+
+void draw_rectangle(int pos_x, int pos_y, int x, int y, uint32_t color)
+{
+    for(int i=pos_x; i<pos_x+x; i++)
+    {
+        frame[pos_y][i] = color;
+        frame[pos_y + y][i] = color;
+    }
+    for(int i=pos_y; i<pos_y+y; i++)
+    {
+        frame[i][pos_x] = color;
+        frame[i][pos_x+x] = color;
+    }
+}
 
 void update_fb(void)
 {
@@ -50,10 +64,14 @@ int main(void)
     printf("w = %d, h = %d\n", w, h);
     w = 255;
     h = 255;
+    int counter = 0;
     
     while (1)
 	{
         update_fb();
+        counter++;
+        if(counter == 10)
+            draw_rectangle(20, 40, 100, 100, 0x000000FF);
         // uint32_t *img = create_image(w, h);
         // if(img)
         // {
