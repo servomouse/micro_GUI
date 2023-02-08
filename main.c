@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <time.h>
 
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -10,10 +12,25 @@
 
 #include "micro_GUI.h"
 
+
 #define WIDTH 480
 #define HEIGHT 480
 uint32_t frame[HEIGHT][WIDTH] = {[0 ... HEIGHT-1][0 ... WIDTH-1] = 0x00505050};
 // int temp[128] = {[0 ... 127] = 0x10};
+
+void draw_rect_rand(int pos_x, int pos_y, int x, int y, uint32_t color)
+{
+    int rx, ry, rc;
+    for(int t=0; t<100000; t++)
+    {
+        rx = rand() & 0xFFF;
+        ry = rand() & 0xFFF;
+        rc = rand() & 0xFFFFFF;
+        if(rx > pos_x && rx < pos_x+x && ry > pos_y && ry<pos_y+y)
+            frame[ry][rx] = rc;
+
+    }
+}
 
 void draw_rectangle(int pos_x, int pos_y, int x, int y, uint32_t color)
 {
@@ -55,8 +72,21 @@ uint32_t *create_image(uint32_t width, uint32_t height)
     return image;
 }
 
+int i = 2;
+
+void* foo(void* p)
+{
+  // Print value received as argument:
+  printf("Value recevied as argument in starting routine: ");
+  printf("%i\n", * (int*)p);
+
+  // Return reference to global variable:
+  pthread_exit(&i);
+}
+
 int main(void)
 {
+    srand(time(NULL));
 	create_window(480, 480);
     int w = 0, h = 0;
     window_get_dimensions(&w, &h);
@@ -65,21 +95,19 @@ int main(void)
     w = 255;
     h = 255;
     int counter = 0;
+    pthread_t id;
+    int j = 1;
+    pthread_create(&id, NULL, foo, &j);
+    int* ptr;
+    pthread_join(id, (void**)&ptr); // Wait for foo() and retrieve value in ptr;
+    printf("Value recevied by parent from child: ");
+    printf("%i\n", *ptr);
     
     while (1)
 	{
         update_fb();
-        counter++;
-        if(counter == 10)
-            draw_rectangle(20, 40, 100, 100, 0x000000FF);
-        // uint32_t *img = create_image(w, h);
-        // if(img)
-        // {
-        //     update_window(w, h, img);
-        //     free(img);
-        // }
-        // usleep(10000);
-        sleep(1);
+        draw_rect_rand(0, 0, 480, 480, 0x000000FF);
+        sleep(0.1);
     }
 }
 /*
